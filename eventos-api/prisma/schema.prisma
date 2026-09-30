@@ -1,0 +1,38 @@
+// Espelha exatamente as tabelas criadas pelo seu SQL (sql/banco_eventos.sql).
+// As tabelas já existem no MySQL, então aqui só rodamos: npx prisma generate
+// NÃO rode "prisma migrate dev" (ele tentaria apagar e recriar o banco).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model evento {
+  id_evento          Int                  @id @default(autoincrement())
+  nome               String               @db.VarChar(150)
+  descricao          String               @db.Text
+  local              String               @db.VarChar(200)
+  evento_palestrante evento_palestrante[]
+}
+
+model palestrante {
+  id_palestrante     Int                  @id @default(autoincrement())
+  nome               String               @db.VarChar(150)
+  email              String               @unique(map: "uq_palestrante_email") @db.VarChar(150)
+  evento_palestrante evento_palestrante[]
+}
+
+// Tabela associativa (N:N). fk_ep_evento = CASCADE, fk_ep_palestrante = RESTRICT
+model evento_palestrante {
+  id_evento      Int
+  id_palestrante Int
+  evento         evento      @relation(fields: [id_evento], references: [id_evento], onDelete: Cascade, map: "fk_ep_evento")
+  palestrante    palestrante @relation(fields: [id_palestrante], references: [id_palestrante], onDelete: Restrict, map: "fk_ep_palestrante")
+
+  @@id([id_evento, id_palestrante])
+  @@index([id_palestrante], map: "idx_ep_palestrante")
+}

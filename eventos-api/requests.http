@@ -1,0 +1,117 @@
+# Testes da API - extensão "REST Client" do VS Code
+# Clique em "Send Request" acima de cada requisição.
+
+@url = http://localhost:3000
+
+### ===================== EVENTOS =====================
+
+### Listar eventos com seus palestrantes
+GET {{url}}/eventos
+
+### Selecionar um evento
+GET {{url}}/eventos/1
+
+### Cadastrar evento (vai ganhar o id 4)
+POST {{url}}/eventos
+Content-Type: application/json
+
+{
+  "nome": "Hackathon Universitário",
+  "descricao": "Maratona de programação de 24 horas.",
+  "local": "Laboratório de Informática"
+}
+
+### Alterar evento
+PUT {{url}}/eventos/4
+Content-Type: application/json
+
+{
+  "nome": "Hackathon Universitário 2026",
+  "descricao": "Maratona de programação de 24 horas com premiação.",
+  "local": "Ginásio Poliesportivo"
+}
+
+### Adicionar palestrante 3 ao evento 4
+POST {{url}}/eventos/4/palestrantes/3
+
+### Remover palestrante 3 do evento 4
+DELETE {{url}}/eventos/4/palestrantes/3
+
+### Excluir evento
+DELETE {{url}}/eventos/4
+
+### =================== PALESTRANTES ===================
+
+### Listar palestrantes
+GET {{url}}/palestrantes
+
+### Buscar palestrante com seus eventos
+GET {{url}}/palestrantes/1
+
+### Cadastrar palestrante (vai ganhar o id 5)
+POST {{url}}/palestrantes
+Content-Type: application/json
+
+{
+  "nome": "Fernanda Costa",
+  "email": "fernanda.costa@email.com"
+}
+
+### Alterar palestrante
+PUT {{url}}/palestrantes/5
+Content-Type: application/json
+
+{
+  "nome": "Fernanda Costa Silva",
+  "email": "fernanda.silva@email.com"
+}
+
+### Excluir palestrante (funciona porque ele não está em nenhum evento)
+DELETE {{url}}/palestrantes/5
+
+### ================ TESTES QUE DEVEM FALHAR ================
+
+### 400: campo obrigatório vazio
+POST {{url}}/eventos
+Content-Type: application/json
+
+{
+  "nome": "",
+  "descricao": "Sem nome",
+  "local": "Sala 1"
+}
+
+### 400: e-mail inválido
+POST {{url}}/palestrantes
+Content-Type: application/json
+
+{
+  "nome": "Teste",
+  "email": "email-sem-arroba"
+}
+
+### 409: e-mail já cadastrado
+POST {{url}}/palestrantes
+Content-Type: application/json
+
+{
+  "nome": "Outra Ana",
+  "email": "ana.souza@email.com"
+}
+
+### 409: palestrante 1 está em eventos (ON DELETE RESTRICT)
+DELETE {{url}}/palestrantes/1
+
+### 409: palestrante 1 já está no evento 1
+POST {{url}}/eventos/1/palestrantes/1
+
+### ===================== VIEWS =====================
+
+### vw_eventos_palestrantes
+GET {{url}}/relatorios/eventos
+
+### vw_palestrantes_eventos
+GET {{url}}/relatorios/palestrantes
+
+### vw_evento_palestrante_detalhe
+GET {{url}}/relatorios/vinculos
